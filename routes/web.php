@@ -216,3 +216,78 @@ Route::get('/test-db', function() {
 Route::get('/ping', function() {
     return response()->json(['status' => 'pong']);
 });
+
+// ============================================
+// COMPREHENSIVE TEST ROUTES - Remove after debugging
+// ============================================
+
+// Test 1: Pure response (no dependencies)
+Route::get('/ping', function() {
+    return response()->json(['pong' => true]);
+});
+
+// Test 2: Laravel info
+Route::get('/info', function() {
+    return response()->json([
+        'laravel' => app()->version(),
+        'php' => phpversion(),
+        'environment' => app()->environment(),
+        'timezone' => config('app.timezone'),
+        'locale' => config('app.locale'),
+    ]);
+});
+
+// Test 3: Config check
+Route::get('/config-check', function() {
+    return response()->json([
+        'app_key' => !empty(config('app.key')) ? 'SET' : 'MISSING',
+        'app_debug' => config('app.debug'),
+        'db_default' => config('database.default'),
+        'db_host' => config('database.connections.mysql.host'),
+        'db_database' => config('database.connections.mysql.database'),
+        'cache_driver' => config('cache.default'),
+        'session_driver' => config('session.driver'),
+    ]);
+});
+
+// Test 4: Database test
+Route::get('/db-test', function() {
+    try {
+        // Test connection
+        $pdo = DB::connection()->getPdo();
+        
+        // Get database name
+        $dbName = $pdo->query('SELECT DATABASE()')->fetchColumn();
+        
+        // Count users
+        $users = DB::table('users')->count();
+        
+        return response()->json([
+            'status' => 'SUCCESS',
+            'database' => $dbName,
+            'users' => $users,
+            'connection' => 'OK',
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'ERROR',
+            'error' => $e->getMessage(),
+            'trace' => explode("\n", $e->getTraceAsString()),
+        ], 500);
+    }
+});
+
+// Test 5: File system check
+Route::get('/filesystem-check', function() {
+    $checks = [
+        'storage_path' => storage_path(),
+        'storage_writable' => is_writable(storage_path()),
+        'tmp_writable' => is_writable('/tmp'),
+        'ca_cert_exists' => file_exists(storage_path('ca-cert.pem')),
+        'views_path' => resource_path('views'),
+        'views_exists' => is_dir(resource_path('views')),
+    ];
+    
+    return response()->json($checks);
+});
