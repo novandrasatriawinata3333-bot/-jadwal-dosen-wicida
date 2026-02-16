@@ -1,6 +1,9 @@
-{
+﻿{
   "version": 2,
   "framework": null,
+  "outputDirectory": "public",
+  "buildCommand": "npm run build",
+  "installCommand": "npm install",
   "functions": {
     "api/index.php": {
       "runtime": "vercel-php@0.6.0",
@@ -10,11 +13,11 @@
   "routes": [
     {
       "src": "/build/(.*)",
-      "dest": "/public/build/\"
+      "dest": "/public/build/$1"
     },
     {
       "src": "/(css|js|images|fonts|storage)/(.*)",
-      "dest": "/public/\/\"
+      "dest": "/public/$1/$2"
     },
     {
       "src": "/favicon.ico",
@@ -25,9 +28,6 @@
       "dest": "/api/index.php"
     }
   ],
-  "outputDirectory": "public",
-  "buildCommand": "npm run build",
-  "installCommand": "npm install",
   "env": {
     "APP_ENV": "production",
     "APP_DEBUG": "false",
