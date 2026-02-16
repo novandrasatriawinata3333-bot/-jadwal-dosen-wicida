@@ -348,3 +348,4 @@ Route::get('/config-check', function() {
         'session_driver' => config('session.driver'),
     ]);
 });
+
