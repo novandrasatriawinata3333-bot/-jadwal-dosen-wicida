@@ -1,5 +1,9 @@
-/vendor
 /node_modules
+/vendor
 .env
 .env.*
 !.env.example
+/storage/*.key
+/storage/*.pem
+!storage/ca-cert.pem
+.phpunit.result.cache

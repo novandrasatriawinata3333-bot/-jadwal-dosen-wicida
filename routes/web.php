@@ -144,3 +144,75 @@ Route::prefix('iot')->name('iot.')->group(function () {
 */
 
 require __DIR__.'/auth.php';
+
+// ============================================
+// DEBUG ROUTES - Remove after troubleshooting
+// ============================================
+
+// Test PHP & Laravel
+Route::get('/debug', function() {
+    return response()->json([
+        'status' => 'OK',
+        'message' => 'Laravel is running on Vercel',
+        'php_version' => phpversion(),
+        'laravel_version' => app()->version(),
+        'environment' => app()->environment(),
+        'env_check' => [
+            'APP_KEY_SET' => !empty(config('app.key')),
+            'APP_ENV' => config('app.env'),
+            'APP_DEBUG' => config('app.debug'),
+            'DB_CONNECTION' => config('database.default'),
+            'DB_HOST' => config('database.connections.mysql.host'),
+        ],
+        'paths' => [
+            'base_path' => base_path(),
+            'storage_path' => storage_path(),
+            'public_path' => public_path(),
+        ],
+        'files_check' => [
+            'ca_cert_exists' => file_exists(storage_path('ca-cert.pem')),
+            'ca_cert_path' => storage_path('ca-cert.pem'),
+        ],
+    ]);
+});
+
+// Test database connection
+Route::get('/test-db', function() {
+    try {
+        // Test connection
+        DB::connection()->getPdo();
+        
+        // Count records
+        $users = \App\Models\User::count();
+        $jadwals = \App\Models\Jadwal::count();
+        
+        return response()->json([
+            'status' => 'SUCCESS',
+            'message' => 'Database connected successfully',
+            'connection' => config('database.connections.mysql.host'),
+            'database' => config('database.connections.mysql.database'),
+            'counts' => [
+                'users' => $users,
+                'jadwals' => $jadwals,
+            ],
+            'ssl' => [
+                'enabled' => !empty(config('database.connections.mysql.options')[PDO::MYSQL_ATTR_SSL_CA]),
+                'cert_path' => config('database.connections.mysql.options')[PDO::MYSQL_ATTR_SSL_CA] ?? null,
+                'cert_exists' => file_exists(storage_path('ca-cert.pem')),
+            ],
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'ERROR',
+            'message' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine(),
+        ], 500);
+    }
+});
+
+// Test simple response
+Route::get('/ping', function() {
+    return response()->json(['status' => 'pong']);
+});
