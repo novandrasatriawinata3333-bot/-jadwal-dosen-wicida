@@ -15,6 +15,5 @@ return Application::configure(basePath: dirname(__DIR__))
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
-    })->create();
-
-// Deployment timestamp: 2026-02-17 05:33:00
+    })
+    ->create();
