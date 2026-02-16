@@ -1,0 +1,198 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ========================================
+   BASE STYLES
+   ======================================== */
+@layer base {
+    body {
+        @apply font-sans antialiased bg-base-200;
+    }
+    
+    html {
+        scroll-behavior: smooth;
+    }
+    
+    /* Custom focus styles */
+    *:focus {
+        @apply outline-none ring-2 ring-primary ring-offset-2;
+    }
+}
+
+/* ========================================
+   COMPONENT STYLES
+   ======================================== */
+@layer components {
+    /* Custom Button Variants */
+    .btn-wicida {
+        @apply btn bg-primary hover:bg-secondary text-white border-none;
+    }
+    
+    /* Card with hover effect */
+    .card-hover {
+        @apply card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-1;
+    }
+    
+    /* Badge custom */
+    .badge-wicida {
+        @apply badge badge-lg bg-primary text-primary-content;
+    }
+    
+    /* Alert custom */
+    .alert-wicida {
+        @apply alert bg-base-100 border-2 border-primary;
+    }
+}
+
+/* ========================================
+   UTILITY STYLES
+   ======================================== */
+@layer utilities {
+    /* Text shadow */
+    .text-shadow {
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .text-shadow-lg {
+        text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Gradient backgrounds */
+    .bg-gradient-wicida {
+        background: linear-gradient(to right, hsl(var(--p)), hsl(var(--s)));
+    }
+    
+    /* Custom animations */
+    .animate-fade-in {
+        animation: fade-in 0.5s ease-out;
+    }
+    
+    .animate-slide-in {
+        animation: slide-in 0.3s ease-out;
+    }
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slide-in {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes pulse-scale {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+/* ========================================
+   CUSTOM SCROLLBAR
+   ======================================== */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    @apply bg-base-200;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    @apply bg-primary;
+    border-radius: 10px;
+    transition: background-color 0.3s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    @apply bg-secondary;
+}
+
+/* Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--p)) hsl(var(--b2));
+}
+
+/* ========================================
+   LOADING STATES
+   ======================================== */
+.skeleton-loader {
+    @apply animate-pulse bg-base-300 rounded;
+}
+
+/* Loading spinner */
+.spinner {
+    @apply animate-spin rounded-full border-4 border-base-300 border-t-primary;
+}
+
+/* ========================================
+   TRANSITIONS
+   ======================================== */
+* {
+    @apply transition-colors duration-200;
+}
+
+a, button {
+    @apply transition-all duration-200;
+}
+
+/* ========================================
+   RESPONSIVE UTILITIES
+   ======================================== */
+@media (max-width: 768px) {
+    .card-responsive {
+        @apply p-4;
+    }
+}
+
+@media (min-width: 769px) {
+    .card-responsive {
+        @apply p-6;
+    }
+}
+
+/* ========================================
+   PRINT STYLES
+   ======================================== */
+@media print {
+    .no-print {
+        display: none !important;
+    }
+    
+    body {
+        @apply bg-white text-black;
+    }
+}
+
+/* ========================================
+   DARK MODE OVERRIDES
+   ======================================== */
+[data-theme="dark"] .custom-shadow {
+    box-shadow: 0 4px 6px rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="light"] .custom-shadow,
+[data-theme="cupcake"] .custom-shadow {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
