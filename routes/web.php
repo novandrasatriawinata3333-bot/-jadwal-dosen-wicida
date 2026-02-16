@@ -291,3 +291,60 @@ Route::get('/filesystem-check', function() {
     
     return response()->json($checks);
 });
+
+// Database connection test
+Route::get('/db-test', function() {
+    try {
+        // Test PDO connection
+        $pdo = DB::connection()->getPdo();
+        
+        // Get database name
+        $dbName = $pdo->query('SELECT DATABASE()')->fetchColumn();
+        
+        // Count users
+        $userCount = DB::table('users')->count();
+        
+        // Get first user
+        $firstUser = DB::table('users')->first();
+        
+        return response()->json([
+            'status' => 'SUCCESS',
+            'message' => 'Database connected successfully',
+            'database' => $dbName,
+            'host' => config('database.connections.mysql.host'),
+            'users_count' => $userCount,
+            'first_user' => $firstUser ? $firstUser->name : null,
+            'ssl_enabled' => !empty(config('database.connections.mysql.options')),
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'status' => 'ERROR',
+            'message' => $e->getMessage(),
+            'code' => $e->getCode(),
+            'config' => [
+                'host' => config('database.connections.mysql.host'),
+                'database' => config('database.connections.mysql.database'),
+                'port' => config('database.connections.mysql.port'),
+            ],
+        ], 500);
+    }
+});
+
+// Config check
+Route::get('/config-check', function() {
+    return response()->json([
+        'app_key' => !empty(config('app.key')) ? 'SET (length: '.strlen(config('app.key')).')' : 'MISSING',
+        'app_env' => config('app.env'),
+        'app_debug' => config('app.debug'),
+        'db_connection' => config('database.default'),
+        'db_host' => config('database.connections.mysql.host'),
+        'db_port' => config('database.connections.mysql.port'),
+        'db_database' => config('database.connections.mysql.database'),
+        'db_username' => !empty(config('database.connections.mysql.username')) ? 'SET' : 'MISSING',
+        'db_password' => !empty(config('database.connections.mysql.password')) ? 'SET' : 'MISSING',
+        'ssl_ca_path' => config('database.connections.mysql.options')[PDO::MYSQL_ATTR_SSL_CA] ?? 'NOT SET',
+        'cache_driver' => config('cache.default'),
+        'session_driver' => config('session.driver'),
+    ]);
+});
