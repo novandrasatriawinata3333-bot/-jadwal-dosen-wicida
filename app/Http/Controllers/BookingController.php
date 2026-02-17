@@ -10,7 +10,7 @@ class BookingController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Booking::with(['jadwal', 'dosen'])
+        $query = Booking::with(['jadwal.user', 'jadwal'])
             ->where('user_id', Auth::id());
 
         if ($request->has('status') && $request->status !== 'all') {
@@ -26,6 +26,7 @@ class BookingController extends Controller
     public function show(Booking $booking)
     {
         $this->authorize('view', $booking);
+        $booking->load(['jadwal.user', 'jadwal']);
         return view('booking.show', compact('booking'));
     }
 
@@ -33,9 +34,11 @@ class BookingController extends Controller
     {
         $this->authorize('update', $booking);
         
-        $booking->update(['status' => 'approved']);
+        $booking->update([
+            'status' => 'approved'
+        ]);
 
-        return redirect()->back()->with('success', 'Booking berhasil disetujui!');
+        return redirect()->back()->with('success', '✅ Booking berhasil disetujui!');
     }
 
     public function reject(Request $request, Booking $booking)
@@ -51,16 +54,18 @@ class BookingController extends Controller
             'alasan_reject' => $validated['alasan_reject'],
         ]);
 
-        return redirect()->back()->with('success', 'Booking berhasil ditolak!');
+        return redirect()->back()->with('success', '✅ Booking berhasil ditolak!');
     }
 
     public function cancel(Booking $booking)
     {
         $this->authorize('update', $booking);
         
-        $booking->update(['status' => 'cancelled']);
+        $booking->update([
+            'status' => 'cancelled'
+        ]);
 
-        return redirect()->back()->with('success', 'Booking berhasil dibatalkan!');
+        return redirect()->back()->with('success', '✅ Booking berhasil dibatalkan!');
     }
 
     public function destroy(Booking $booking)
@@ -68,6 +73,6 @@ class BookingController extends Controller
         $this->authorize('delete', $booking);
         $booking->delete();
 
-        return redirect()->route('booking.index')->with('success', 'Booking berhasil dihapus!');
+        return redirect()->route('booking.index')->with('success', '✅ Booking berhasil dihapus!');
     }
 }

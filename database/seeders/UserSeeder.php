@@ -42,7 +42,11 @@ class UserSeeder extends Seeder
         ];
 
         foreach ($users as $userData) {
-            User::create($userData);
+            // updateOrCreate = update jika ada, create jika tidak ada
+            User::updateOrCreate(
+                ['email' => $userData['email']], // Cari berdasarkan email
+                $userData // Data yang akan di-update/create
+            );
         }
     }
 }

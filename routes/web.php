@@ -82,6 +82,8 @@ Route::post('/dosen/{id}/booking', [HomeController::class, 'storeBooking'])->nam
 */
 Route::get('/api/status/{dosenId}', [StatusController::class, 'show'])->name('api.status.show');
 Route::get('/api/jadwal/by-day', [JadwalController::class, 'getByDay'])->name('api.jadwal.by-day');
+// Tambahkan di bagian PUBLIC ROUTES (sebelum middleware auth)
+Route::post('/dosen/{id}/booking', [HomeController::class, 'storeBooking'])->name('booking.store.public');
 
 /*
 |--------------------------------------------------------------------------

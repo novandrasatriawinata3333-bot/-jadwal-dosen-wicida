@@ -27,7 +27,7 @@ class HomeController extends Controller
         return view('dosen.show', compact('dosen'));
     }
 
-    public function storeBooking(Request $request, $id)
+    public function storeBooking(Request $request, $dosenId)
     {
         $validated = $request->validate([
             'jadwal_id' => 'required|exists:jadwals,id',
@@ -39,11 +39,27 @@ class HomeController extends Controller
             'keperluan' => 'required|string|max:500',
         ]);
 
-        $validated['user_id'] = $id;
+        // Pastikan jadwal milik dosen yang dipilih
+        $jadwal = Jadwal::findOrFail($validated['jadwal_id']);
+        if ($jadwal->user_id != $dosenId) {
+            return back()->withErrors(['jadwal_id' => 'Jadwal tidak valid']);
+        }
+
+        // Cek jadwal sudah dipesan belum
+        $existing = Booking::where('jadwal_id', $validated['jadwal_id'])
+            ->where('tanggal_booking', $validated['tanggal_booking'])
+            ->where('status', 'approved')
+            ->exists();
+
+        if ($existing) {
+            return back()->withErrors(['tanggal_booking' => 'Jadwal pada tanggal ini sudah dipesan']);
+        }
+
+        $validated['user_id'] = $dosenId;
         $validated['status'] = 'pending';
 
         Booking::create($validated);
 
-        return redirect()->back()->with('success', 'Booking berhasil diajukan! Silakan tunggu konfirmasi dosen.');
+        return redirect()->back()->with('success', '✅ Booking berhasil diajukan! Silakan tunggu konfirmasi dosen.');
     }
 }

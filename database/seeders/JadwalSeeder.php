@@ -10,6 +10,9 @@ class JadwalSeeder extends Seeder
 {
     public function run(): void
     {
+        // Gunakan delete() bukan truncate()
+        Jadwal::query()->delete();
+        
         $users = User::all();
         
         $jadwalData = [

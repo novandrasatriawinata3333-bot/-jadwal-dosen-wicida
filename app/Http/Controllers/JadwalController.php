@@ -10,10 +10,11 @@ class JadwalController extends Controller
 {
     public function index()
     {
+        // GANTI get() dengan paginate()
         $jadwals = Jadwal::where('user_id', Auth::id())
             ->orderBy('hari')
             ->orderBy('waktu_mulai')
-            ->get();
+            ->paginate(10); // ← FIX: gunakan paginate
 
         return view('jadwal.index', compact('jadwals'));
     }
