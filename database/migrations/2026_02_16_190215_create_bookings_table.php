@@ -10,20 +10,27 @@ return new class extends Migration
     {
         Schema::create('bookings', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('nama_mahasiswa');
-            $table->string('email_mahasiswa');
-            $table->string('nim_mahasiswa')->nullable();
+            $table->foreignId('jadwal_id')->constrained()->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // dosen
+            
+            // Data mahasiswa (tidak perlu login)
+            $table->string('nama_mahasiswa', 100);
+            $table->string('nim', 20);
+            $table->string('email_mahasiswa', 100);
+            $table->string('no_hp', 20);
+            
             $table->date('tanggal_booking');
-            $table->time('jam_mulai');
-            $table->time('jam_selesai');
             $table->text('keperluan');
-            $table->enum('status', ['pending', 'approved', 'rejected'])->default('pending');
+            
+            $table->enum('status', ['pending', 'approved', 'rejected', 'cancelled'])
+                  ->default('pending');
             $table->text('alasan_reject')->nullable();
+            
             $table->timestamps();
             
             $table->index(['user_id', 'status']);
             $table->index('tanggal_booking');
+            $table->index('status');
         });
     }
 

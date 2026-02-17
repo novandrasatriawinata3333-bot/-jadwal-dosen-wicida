@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Booking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -10,30 +11,30 @@ class DashboardController extends Controller
     public function index()
     {
         $user = Auth::user();
+        
+        $bookings = Booking::with(['jadwal', 'dosen'])
+            ->where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
 
-        // Statistics
         $stats = [
-            'total_jadwal' => $user->jadwals()->count(),
-            'pending_booking' => $user->bookings()->where('status', 'pending')->count(),
-            'approved_booking' => $user->bookings()->where('status', 'approved')->count(),
-            'status' => $user->status ? $user->status->status : 'Tidak Ada',
+            'pending' => Booking::where('user_id', $user->id)->where('status', 'pending')->count(),
+            'approved' => Booking::where('user_id', $user->id)->where('status', 'approved')->count(),
+            'rejected' => Booking::where('user_id', $user->id)->where('status', 'rejected')->count(),
         ];
 
-        // Recent jadwals
-        $jadwals = $user->jadwals()
-            ->orderByRaw("FIELD(hari, 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat')")
-            ->orderBy('jam_mulai')
-            ->limit(10)
-            ->get();
+        return view('dashboard', compact('bookings', 'stats'));
+    }
 
-        // Recent bookings
-        $recentBookings = $user->bookings()
-            ->where('tanggal_booking', '>=', today())
-            ->where('status', 'pending')
-            ->orderBy('tanggal_booking')
-            ->limit(5)
-            ->get();
-
-        return view('dosen.dashboard', compact('stats', 'jadwals', 'recentBookings'));
+    public function getStats()
+    {
+        $user = Auth::user();
+        
+        return response()->json([
+            'pending' => Booking::where('user_id', $user->id)->where('status', 'pending')->count(),
+            'approved' => Booking::where('user_id', $user->id)->where('status', 'approved')->count(),
+            'rejected' => Booking::where('user_id', $user->id)->where('status', 'rejected')->count(),
+            'total_jadwal' => $user->jadwals()->count(),
+        ]);
     }
 }

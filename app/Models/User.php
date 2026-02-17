@@ -2,21 +2,14 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'name',
         'email',
@@ -26,21 +19,11 @@ class User extends Authenticatable
         'role',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -49,73 +32,30 @@ class User extends Authenticatable
         ];
     }
 
-    /**
-     * RELATIONSHIPS
-     */
-    
-    // User has many Jadwal
+    // Relationships
     public function jadwals()
     {
-        return $this->hasMany(Jadwal::class)->orderBy('hari')->orderBy('jam_mulai');
+        return $this->hasMany(Jadwal::class);
     }
 
-    // User has one Status
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
+    }
+
     public function status()
     {
         return $this->hasOne(Status::class);
     }
 
-    // User has many Bookings (sebagai dosen)
-    public function bookings()
+    // Helpers
+    public function isKepalaLab(): bool
     {
-        return $this->hasMany(Booking::class)->latest();
+        return $this->role === 'kepala_lab';
     }
 
-    /**
-     * SCOPES
-     */
-    
-    // Scope untuk query dosen saja (kepala_lab dan staf)
-    public function scopeDosen($query)
+    public function isStaf(): bool
     {
-        return $query->whereIn('role', ['kepala_lab', 'staf']);
-    }
-
-    // Scope untuk query admin
-    public function scopeAdmin($query)
-    {
-        return $query->where('role', 'admin');
-    }
-
-    /**
-     * ACCESSORS & MUTATORS
-     */
-    
-    // Get status badge color
-    public function getStatusBadgeColorAttribute()
-    {
-        if (!$this->status) return 'badge-ghost';
-        
-        return match($this->status->status) {
-            'Ada' => 'badge-success',
-            'Mengajar' => 'badge-warning',
-            'Konsultasi' => 'badge-info',
-            'Tidak Ada' => 'badge-error',
-            default => 'badge-ghost',
-        };
-    }
-
-    // Get status emoji
-    public function getStatusEmojiAttribute()
-    {
-        if (!$this->status) return '⚪';
-        
-        return match($this->status->status) {
-            'Ada' => '🟢',
-            'Mengajar' => '🟡',
-            'Konsultasi' => '🔵',
-            'Tidak Ada' => '🔴',
-            default => '⚪',
-        };
+        return $this->role === 'staf';
     }
 }

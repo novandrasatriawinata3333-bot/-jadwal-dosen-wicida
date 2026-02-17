@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
@@ -18,7 +15,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             
-            // ✅ TAMBAHAN FIELD UNTUK LAB WICIDA
+            // Custom fields untuk dosen
             $table->string('nip', 20)->unique()->nullable();
             $table->string('photo')->nullable();
             $table->enum('role', ['kepala_lab', 'staf', 'admin'])->default('staf');
@@ -26,7 +23,6 @@ return new class extends Migration
             $table->rememberToken();
             $table->timestamps();
             
-            // Indexes
             $table->index('role');
             $table->index('nip');
         });
@@ -47,9 +43,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('users');

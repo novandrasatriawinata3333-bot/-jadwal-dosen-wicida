@@ -11,15 +11,16 @@ return new class extends Migration
         Schema::create('jadwals', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->enum('hari', ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat']);
-            $table->time('jam_mulai');
-            $table->time('jam_selesai');
-            $table->string('ruangan')->nullable();
-            $table->enum('kegiatan', ['Mengajar', 'Konsultasi', 'Rapat', 'Lainnya'])->default('Konsultasi');
+            $table->enum('hari', ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu']);
+            $table->time('waktu_mulai');
+            $table->time('waktu_selesai');
+            $table->string('ruangan', 50);
             $table->text('keterangan')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
             
             $table->index(['user_id', 'hari']);
+            $table->index('is_active');
         });
     }
 

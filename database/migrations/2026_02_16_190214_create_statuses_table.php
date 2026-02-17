@@ -10,10 +10,13 @@ return new class extends Migration
     {
         Schema::create('statuses', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->unique()->constrained()->onDelete('cascade');
-            $table->enum('status', ['Ada', 'Mengajar', 'Konsultasi', 'Tidak Ada'])->default('Tidak Ada');
-            $table->timestamp('updated_at_iot')->nullable();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->enum('status', ['Ada', 'Tidak Ada', 'Rapat', 'Mengajar'])->default('Tidak Ada');
+            $table->timestamp('last_updated')->useCurrent();
             $table->timestamps();
+            
+            $table->unique('user_id');
+            $table->index('status');
         });
     }
 

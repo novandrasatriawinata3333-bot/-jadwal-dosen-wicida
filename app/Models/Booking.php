@@ -9,130 +9,40 @@ class Booking extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
+        'jadwal_id',
         'user_id',
         'nama_mahasiswa',
+        'nim',
         'email_mahasiswa',
-        'nim_mahasiswa',
+        'no_hp',
         'tanggal_booking',
-        'jam_mulai',
-        'jam_selesai',
         'keperluan',
         'status',
         'alasan_reject',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    protected $casts = [
+        'tanggal_booking' => 'date',
+    ];
+
+    public function jadwal()
     {
-        return [
-            'tanggal_booking' => 'date',
-            'jam_mulai' => 'datetime:H:i',
-            'jam_selesai' => 'datetime:H:i',
-        ];
+        return $this->belongsTo(Jadwal::class);
     }
 
-    /**
-     * RELATIONSHIPS
-     */
-    
-    // Booking belongs to User (dosen)
-    public function user()
+    public function dosen()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
-    /**
-     * SCOPES
-     */
-    
-    // Get pending bookings
-    public function scopePending($query)
+    public function isPending(): bool
     {
-        return $query->where('status', 'pending');
+        return $this->status === 'pending';
     }
 
-    // Get approved bookings
-    public function scopeApproved($query)
+    public function isApproved(): bool
     {
-        return $query->where('status', 'approved');
-    }
-
-    // Get rejected bookings
-    public function scopeRejected($query)
-    {
-        return $query->where('status', 'rejected');
-    }
-
-    // Get upcoming bookings (tanggal >= hari ini)
-    public function scopeUpcoming($query)
-    {
-        return $query->where('tanggal_booking', '>=', today());
-    }
-
-    // Get past bookings
-    public function scopePast($query)
-    {
-        return $query->where('tanggal_booking', '<', today());
-    }
-
-    /**
-     * ACCESSORS
-     */
-    
-    // Get status badge color
-    public function getStatusBadgeColorAttribute()
-    {
-        return match($this->status) {
-            'pending' => 'badge-warning',
-            'approved' => 'badge-success',
-            'rejected' => 'badge-error',
-            default => 'badge-ghost',
-        };
-    }
-
-    // Get status label
-    public function getStatusLabelAttribute()
-    {
-        return match($this->status) {
-            'pending' => '⏳ Menunggu',
-            'approved' => '✅ Disetujui',
-            'rejected' => '❌ Ditolak',
-            default => 'Unknown',
-        };
-    }
-
-    // Get formatted date
-    public function getTanggalFormatAttribute()
-    {
-        return $this->tanggal_booking->translatedFormat('d F Y');
-    }
-
-    // Get formatted time range
-    public function getWaktuAttribute()
-    {
-        return date('H:i', strtotime($this->jam_mulai)) . ' - ' . 
-               date('H:i', strtotime($this->jam_selesai));
-    }
-
-    // Check if booking is today
-    public function getIstodayAttribute()
-    {
-        return $this->tanggal_booking->isToday();
-    }
-
-    // Check if booking is in the future
-    public function getIsFutureAttribute()
-    {
-        return $this->tanggal_booking->isFuture();
+        return $this->status === 'approved';
     }
 }

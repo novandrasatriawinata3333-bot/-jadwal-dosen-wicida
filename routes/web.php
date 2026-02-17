@@ -12,6 +12,62 @@ use App\Http\Controllers\{
 
 /*
 |--------------------------------------------------------------------------
+| DEBUG ROUTES (hapus setelah production stabil)
+|--------------------------------------------------------------------------
+*/
+Route::get('/ping', fn () => response()->json(['status' => 'pong', 'timestamp' => now()]));
+
+Route::get('/debug', function () {
+    return response()->json([
+        'status' => 'OK',
+        'message' => 'Laravel is running on Vercel',
+        'php_version' => PHP_VERSION,
+        'laravel_version' => app()->version(),
+        'environment' => app()->environment(),
+        'env_check' => [
+            'APP_KEY_SET' => !empty(config('app.key')),
+            'APP_ENV' => config('app.env'),
+            'APP_DEBUG' => config('app.debug'),
+            'DB_CONNECTION' => config('database.default'),
+            'DB_HOST' => config('database.connections.mysql.host'),
+        ],
+        'paths' => [
+            'base_path' => base_path(),
+            'storage_path' => storage_path(),
+            'public_path' => public_path(),
+        ],
+        'files_check' => [
+            'ca_cert_exists' => file_exists(storage_path('ca-cert.pem')),
+            'ca_cert_path' => storage_path('ca-cert.pem'),
+        ],
+    ]);
+});
+
+Route::get('/db-test', function () {
+    try {
+        \DB::connection()->getPdo();
+        
+        return response()->json([
+            'status' => 'SUCCESS',
+            'message' => 'Database connected successfully',
+            'counts' => [
+                'users' => \DB::table('users')->count(),
+                'jadwals' => \DB::table('jadwals')->count(),
+                'bookings' => \DB::table('bookings')->count(),
+            ],
+            'database' => config('database.connections.mysql.database'),
+        ]);
+    } catch (\Throwable $e) {
+        return response()->json([
+            'status' => 'ERROR',
+            'message' => $e->getMessage(),
+            'code' => $e->getCode(),
+        ], 500);
+    }
+});
+
+/*
+|--------------------------------------------------------------------------
 | PUBLIC ROUTES
 |--------------------------------------------------------------------------
 */
@@ -21,7 +77,7 @@ Route::post('/dosen/{id}/booking', [HomeController::class, 'storeBooking'])->nam
 
 /*
 |--------------------------------------------------------------------------
-| PUBLIC API ROUTES (AJAX)
+| PUBLIC API ROUTES
 |--------------------------------------------------------------------------
 */
 Route::get('/api/status/{dosenId}', [StatusController::class, 'show'])->name('api.status.show');
@@ -56,7 +112,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| IOT ROUTES (token-based)
+| IOT ROUTES
 |--------------------------------------------------------------------------
 */
 Route::prefix('iot')->name('iot.')->group(function () {
@@ -66,51 +122,7 @@ Route::prefix('iot')->name('iot.')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
-| DEBUG ROUTES (hapus setelah beres)
-|--------------------------------------------------------------------------
-| Ini selaras dengan pola debug di dokumen kamu untuk memecah masalah 500:
-| apakah Laravel jalan, apakah DB connect, apakah CA cert ada, dll.
+| AUTH ROUTES (Laravel Breeze)
 |--------------------------------------------------------------------------
 */
-Route::get('/ping', fn () => response()->json(['status' => 'pong']));
-
-Route::get('/debug', function () {
-    return response()->json([
-        'status' => 'OK',
-        'php' => PHP_VERSION,
-        'laravel' => app()->version(),
-        'env' => app()->environment(),
-        'app_key_set' => !empty(config('app.key')),
-        'db_default' => config('database.default'),
-        'db_host' => config('database.connections.mysql.host'),
-        'paths' => [
-            'base' => base_path(),
-            'storage' => storage_path(),
-            'public' => public_path(),
-        ],
-        'ca_cert' => [
-            'path' => storage_path('ca-cert.pem'),
-            'exists' => file_exists(storage_path('ca-cert.pem')),
-        ],
-    ]);
-});
-
-Route::get('/db-test', function () {
-    try {
-        $pdo = \DB::connection()->getPdo();
-        return response()->json([
-            'status' => 'SUCCESS',
-            'message' => 'Database connected',
-            'users' => \DB::table('users')->count(),
-            'jadwals' => \DB::table('jadwals')->count(),
-            'bookings' => \DB::table('bookings')->count(),
-        ]);
-    } catch (\Throwable $e) {
-        return response()->json([
-            'status' => 'ERROR',
-            'message' => $e->getMessage(),
-        ], 500);
-    }
-});
-
 require __DIR__ . '/auth.php';
